@@ -1,0 +1,17 @@
+
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonJS",
+    "rootDir": "./src",
+    "allowJs": true,
+    "outDir": "./dist",
+    "removeComments": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
