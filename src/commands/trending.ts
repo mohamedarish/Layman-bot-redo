@@ -1,3 +1,4 @@
+import { EmbedBuilder } from "@discordjs/builders";
 import {
     CacheType,
     ChatInputCommandInteraction,
@@ -56,9 +57,30 @@ class Trending extends BotCommand {
 
         if (!trendingMovies.total_results) return;
 
+        const trendingEmbed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle(`Top trending movies of ${ time == "day"? "today" : "this week" }`)
+            .setDescription("The trending movies right now are:");
+
+        if (!trendingMovies.results) return;
+
+        let flag = true;
+        
+        trendingMovies.results.forEach(movie => {
+
+            if (flag && movie.poster_path) {
+                trendingEmbed.setThumbnail("https://image.tmdb.org/t/p/w500/" + movie.poster_path);
+                flag = false;
+            }
+
+            trendingEmbed.addFields(
+                { name: movie.title? movie.title : "No title found", value: movie.overview },
+            );
+        });
+
         interaction.reply({
-            content: `Got ${trendingMovies.results?.length} out of ${trendingMovies.total_results}`,
-            ephemeral: true,
+            embeds: [trendingEmbed],
+            ephemeral: true
         });
     }
 }

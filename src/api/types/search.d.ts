@@ -1,7 +1,7 @@
 export interface SearchResults {
-    id?: number;
-    logo_path?: string | null;
-    name?: string;
+    id: number;
+    logo_path: string | null;
+    name: string;
 }
 
 export interface Search {
