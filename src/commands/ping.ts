@@ -1,5 +1,9 @@
 import { EmbedBuilder } from "@discordjs/builders";
-import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+    CacheType,
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+} from "discord.js";
 import { BotCommand } from "../structures";
 
 class Ping extends BotCommand {
@@ -12,7 +16,9 @@ class Ping extends BotCommand {
         );
     }
 
-    public async execute(interaction: ChatInputCommandInteraction<CacheType>): Promise<void> {
+    public async execute(
+        interaction: ChatInputCommandInteraction<CacheType>
+    ): Promise<void> {
         const embed = new EmbedBuilder()
             .setTitle("Pong 🏓")
             .setDescription(`API Latency: \`${interaction.client.ws.ping}\`ms`)

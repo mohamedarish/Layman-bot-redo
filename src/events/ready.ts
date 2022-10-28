@@ -31,21 +31,21 @@ export default TypedEvent({
 
         await Promise.all(tasks);
 
-        commandArr.forEach(command => {
+        commandArr.forEach((command) => {
             client.commands.set(command.data.name, command);
         });
 
-        const payload = commandArr.map(cmd => cmd.data);
+        const payload = commandArr.map((cmd) => cmd.data);
 
         tasks = [];
 
-        const rest = new REST({version: "10"}).setToken(
+        const rest = new REST({ version: "10" }).setToken(
             process.env.BOT || ""
         );
 
-        await rest.put(Routes.applicationCommands(client.user.id),
-            {body: payload}
-        );
+        await rest.put(Routes.applicationCommands(client.user.id), {
+            body: payload,
+        });
         console.log("Succesfully registered slash commands");
     },
 });

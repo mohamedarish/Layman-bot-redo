@@ -3,18 +3,17 @@ import BotCommand from "./BotCommand";
 import { eventFiles } from "../files";
 import { IBotEvent } from "../types";
 
-
 export default class Bot extends Client<true> {
     public commands = new Collection<string, BotCommand>();
 
-    constructor () {
+    constructor() {
         super({
             intents: [
                 GatewayIntentBits.GuildMembers,
                 GatewayIntentBits.GuildMessages,
                 GatewayIntentBits.GuildMessageReactions,
-                GatewayIntentBits.Guilds
-            ]
+                GatewayIntentBits.Guilds,
+            ],
         });
     }
 
@@ -26,10 +25,10 @@ export default class Bot extends Client<true> {
     async initModules() {
         const tasks: Promise<unknown>[] = [];
 
-        for (let i = 0; i  < eventFiles.length; i += 1) {
+        for (let i = 0; i < eventFiles.length; i += 1) {
             const file = eventFiles[i];
             const task = import(file);
-            task.then(module => {
+            task.then((module) => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const event = module.default as IBotEvent<any>;
 
