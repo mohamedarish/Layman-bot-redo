@@ -1,3 +1,4 @@
+import { EmbedBuilder } from "@discordjs/builders";
 import {
     CacheType,
     ChatInputCommandInteraction,
@@ -29,14 +30,52 @@ class Search extends BotCommand {
 
         if (!query) return;
 
-        const movieResults = await search(query);
+        const res = await search(query);
+
+        if (!res) return;
+
+        const movieResults = {
+            page: res.page,
+            results: res.results?.filter((el) => el.title),
+            totalPages: res.total_pages,
+            totalResults: res.total_results,
+        };
 
         if (!movieResults) return;
 
-        console.log(movieResults);
+        // interaction.reply({
+        //     content: `Found ${movieResults.results?.length} results out of a total possible ${movieResults.total_results}`,
+        //     ephemeral: true,
+        // });
+
+        if (
+            !movieResults.results ||
+            !movieResults.page ||
+            !movieResults.totalPages ||
+            !movieResults.totalResults
+        )
+            return;
+
+        const embed = new EmbedBuilder()
+            .setTitle(`Search results for ${query}`)
+            .setColor(0x00ff0f);
+
+        for (
+            let i = 0;
+            i <
+            (movieResults.totalResults < 10 ? movieResults.totalResults : 10);
+            i += 1
+        ) {
+            const movie = movieResults.results[i];
+
+            embed.addFields({
+                name: `${movie.title} (${movie.release_date.substring(0, 4)})`,
+                value: `${movie.vote_average * 10} %`,
+            });
+        }
 
         interaction.reply({
-            content: `Found ${movieResults.results?.length} results out of a total possible ${movieResults.total_results}`,
+            embeds: [embed],
             ephemeral: true,
         });
     }

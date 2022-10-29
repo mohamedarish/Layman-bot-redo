@@ -58,29 +58,35 @@ class Trending extends BotCommand {
         if (!trendingMovies.total_results) return;
 
         const trendingEmbed = new EmbedBuilder()
-            .setColor(0x0099FF)
-            .setTitle(`Top trending movies of ${ time == "day"? "today" : "this week" }`)
+            .setColor(0x0099ff)
+            .setTitle(
+                `Top trending movies of ${
+                    time === "day" ? "today" : "this week"
+                }`
+            )
             .setDescription("The trending movies right now are:");
 
         if (!trendingMovies.results) return;
 
         let flag = true;
-        
-        trendingMovies.results.forEach(movie => {
 
+        trendingMovies.results.forEach((movie) => {
             if (flag && movie.poster_path) {
-                trendingEmbed.setThumbnail("https://image.tmdb.org/t/p/w500/" + movie.poster_path);
+                trendingEmbed.setThumbnail(
+                    "https://image.tmdb.org/t/p/w500/" + movie.poster_path
+                );
                 flag = false;
             }
 
-            trendingEmbed.addFields(
-                { name: movie.title? movie.title : "No title found", value: movie.overview },
-            );
+            trendingEmbed.addFields({
+                name: movie.title ? movie.title : "No title found",
+                value: movie.overview,
+            });
         });
 
         interaction.reply({
             embeds: [trendingEmbed],
-            ephemeral: true
+            ephemeral: true,
         });
     }
 }
