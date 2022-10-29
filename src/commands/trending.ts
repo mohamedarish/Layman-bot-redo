@@ -2,7 +2,7 @@ import { EmbedBuilder } from "@discordjs/builders";
 import {
     CacheType,
     ChatInputCommandInteraction,
-    SlashCommandBuilder,
+    SlashCommandBuilder
 } from "discord.js";
 import { trending } from "../api";
 import { BotCommand } from "../structures";
@@ -51,8 +51,6 @@ class Trending extends BotCommand {
 
         const trendingMovies = await trending(type, time);
 
-        console.log(trendingMovies);
-
         if (!trendingMovies) return;
 
         if (!trendingMovies.total_results) return;
@@ -80,13 +78,13 @@ class Trending extends BotCommand {
 
             trendingEmbed.addFields({
                 name: movie.title ? movie.title : "No title found",
-                value: movie.overview,
+                value: movie.overview
             });
         });
 
         interaction.reply({
             embeds: [trendingEmbed],
-            ephemeral: true,
+            ephemeral: true
         });
     }
 }

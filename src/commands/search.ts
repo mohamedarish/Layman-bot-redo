@@ -1,5 +1,10 @@
-import { EmbedBuilder } from "@discordjs/builders";
 import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    EmbedBuilder,
+} from "@discordjs/builders";
+import {
+    ButtonStyle,
     CacheType,
     ChatInputCommandInteraction,
     SlashCommandBuilder,
@@ -60,10 +65,18 @@ class Search extends BotCommand {
             .setTitle(`Search results for ${query}`)
             .setColor(0x00ff0f);
 
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+                .setCustomId("back")
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji({ name: "⬅️" })
+        );
+
+        const emotes = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣"];
+
         for (
             let i = 0;
-            i <
-            (movieResults.totalResults < 10 ? movieResults.totalResults : 10);
+            i < (movieResults.totalResults < 8 ? movieResults.totalResults : 8);
             i += 1
         ) {
             const movie = movieResults.results[i];
@@ -72,10 +85,25 @@ class Search extends BotCommand {
                 name: `${movie.title} (${movie.release_date.substring(0, 4)})`,
                 value: `${movie.vote_average * 10} %`,
             });
+
+            row.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(i.toString())
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji({ name: emotes[i] })
+            );
         }
+
+        row.addComponents(
+            new ButtonBuilder()
+                .setCustomId("forward")
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji({ name: "➡️" })
+        );
 
         interaction.reply({
             embeds: [embed],
+            components: [row],
             ephemeral: true,
         });
     }
