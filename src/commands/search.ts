@@ -72,11 +72,11 @@ class Search extends BotCommand {
                 .setEmoji({ name: "⬅️" })
         );
 
-        const emotes = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣"];
+        const emotes = ["1️⃣", "2️⃣", "3️⃣"];
 
         for (
             let i = 0;
-            i < (movieResults.totalResults < 8 ? movieResults.totalResults : 8);
+            i < (movieResults.totalResults < 3 ? movieResults.totalResults : 3);
             i += 1
         ) {
             const movie = movieResults.results[i];
@@ -98,7 +98,7 @@ class Search extends BotCommand {
             new ButtonBuilder()
                 .setCustomId("forward")
                 .setStyle(ButtonStyle.Primary)
-                .setEmoji({ name: "➡️" })
+                .setEmoji({ name: "⬅️" })
         );
 
         interaction.reply({

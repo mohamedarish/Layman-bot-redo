@@ -2,7 +2,7 @@ import { EmbedBuilder } from "@discordjs/builders";
 import {
     CacheType,
     ChatInputCommandInteraction,
-    SlashCommandBuilder
+    SlashCommandBuilder,
 } from "discord.js";
 import { trending } from "../api";
 import { BotCommand } from "../structures";
@@ -49,11 +49,11 @@ class Trending extends BotCommand {
 
         if (!type || !time) return;
 
-        const trendingMovies = await trending(type, time);
+        const res = await trending(type, time);
 
-        if (!trendingMovies) return;
+        if (!res) return;
 
-        if (!trendingMovies.total_results) return;
+        if (!res.total_results) return;
 
         const trendingEmbed = new EmbedBuilder()
             .setColor(0x0099ff)
@@ -62,13 +62,29 @@ class Trending extends BotCommand {
                     time === "day" ? "today" : "this week"
                 }`
             )
-            .setDescription("The trending movies right now are:");
+            .setDescription(
+                `The trending ${
+                    type === "movie"
+                        ? "movies"
+                        : type === "tv"
+                        ? "series"
+                        : type === "person"
+                        ? "celebrities"
+                        : "from all categories are"
+                } right now are:`
+            );
 
-        if (!trendingMovies.results) return;
+        if (!res.results) return;
+
+        const trendingMovies = res.results;
+
+        while (trendingMovies.length > 10) {
+            trendingMovies.pop();
+        }
 
         let flag = true;
 
-        trendingMovies.results.forEach((movie) => {
+        trendingMovies.forEach((movie) => {
             if (flag && movie.poster_path) {
                 trendingEmbed.setThumbnail(
                     "https://image.tmdb.org/t/p/w500/" + movie.poster_path
@@ -77,14 +93,28 @@ class Trending extends BotCommand {
             }
 
             trendingEmbed.addFields({
-                name: movie.title ? movie.title : "No title found",
+                name: movie.title
+                    ? `[${movie.title}](https://www.themoviedb.org/${type}/${movie.id})`
+                    : movie.original_title
+                    ? `[${movie.original_title}](https://www.themoviedb.org/${type}/${movie.id})`
+                    : movie.name
+                    ? `[${movie.name}](https://www.themoviedb.org/${type}/${movie.id})`
+                    : movie.orignial_name
+                    ? `[${movie.orignial_name}](https://www.themoviedb.org/${type}/${movie.id})`
+                    : "No title found",
                 value: movie.overview
+                    ? movie.overview.length > 50
+                        ? movie.overview.slice(0, 51) + "..."
+                        : movie.overview
+                    : movie.known_for_department
+                    ? movie.known_for_department
+                    : "No data found on actor",
             });
         });
 
         interaction.reply({
             embeds: [trendingEmbed],
-            ephemeral: true
+            ephemeral: true,
         });
     }
 }
