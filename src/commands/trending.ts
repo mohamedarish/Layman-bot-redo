@@ -1,8 +1,13 @@
-import { EmbedBuilder } from "@discordjs/builders";
+import {
+    ActionRowBuilder,
+    EmbedBuilder,
+    SelectMenuBuilder,
+    SelectMenuOptionBuilder
+} from "@discordjs/builders";
 import {
     CacheType,
     ChatInputCommandInteraction,
-    SlashCommandBuilder,
+    SlashCommandBuilder
 } from "discord.js";
 import { trending } from "../api";
 import { BotCommand } from "../structures";
@@ -55,25 +60,6 @@ class Trending extends BotCommand {
 
         if (!res.total_results) return;
 
-        const trendingEmbed = new EmbedBuilder()
-            .setColor(0x0099ff)
-            .setTitle(
-                `Top trending movies of ${
-                    time === "day" ? "today" : "this week"
-                }`
-            )
-            .setDescription(
-                `The trending ${
-                    type === "movie"
-                        ? "movies"
-                        : type === "tv"
-                        ? "series"
-                        : type === "person"
-                        ? "celebrities"
-                        : "from all categories are"
-                } right now are:`
-            );
-
         if (!res.results) return;
 
         const trendingMovies = res.results;
@@ -82,39 +68,83 @@ class Trending extends BotCommand {
             trendingMovies.pop();
         }
 
-        let flag = true;
-
-        trendingMovies.forEach((movie) => {
-            if (flag && movie.poster_path) {
-                trendingEmbed.setThumbnail(
-                    "https://image.tmdb.org/t/p/w500/" + movie.poster_path
-                );
-                flag = false;
-            }
-
-            trendingEmbed.addFields({
-                name: movie.title
-                    ? `[${movie.title}](https://www.themoviedb.org/${type}/${movie.id})`
-                    : movie.original_title
-                    ? `[${movie.original_title}](https://www.themoviedb.org/${type}/${movie.id})`
-                    : movie.name
-                    ? `[${movie.name}](https://www.themoviedb.org/${type}/${movie.id})`
-                    : movie.orignial_name
-                    ? `[${movie.orignial_name}](https://www.themoviedb.org/${type}/${movie.id})`
-                    : "No title found",
-                value: movie.overview
-                    ? movie.overview.length > 50
-                        ? movie.overview.slice(0, 51) + "..."
-                        : movie.overview
-                    : movie.known_for_department
-                    ? movie.known_for_department
-                    : "No data found on actor",
+        const trendingEmbed = new EmbedBuilder()
+            .setColor(0x0099ff)
+            .setTitle(
+                trendingMovies[0].title
+                    ? trendingMovies[0].title
+                    : trendingMovies[0].name
+                    ? trendingMovies[0].name
+                    : "No title or name found"
+            )
+            .setURL(
+                `https://www.themoviedb.org/${type}/${trendingMovies[0].id}`
+            )
+            .setDescription(
+                trendingMovies[0].overview
+                    ? trendingMovies[0].overview
+                    : trendingMovies[0].known_for_department
+                    ? trendingMovies[0].known_for_department
+                    : "No valid description found"
+            )
+            .setImage(
+                trendingMovies[0].poster_path
+                    ? `https://image.tmdb.org/t/p/w500${trendingMovies[0].poster_path}`
+                    : trendingMovies[0].profile_path
+                    ? `https://image.tmdb.org/t/p/w500${trendingMovies[0].profile_path}`
+                    : "https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg"
+            )
+            .setThumbnail("https://i.imgur.com/44ueTES.png")
+            .setFooter({
+                text: `Requested bu ${interaction.user.tag}`,
+                iconURL: interaction.user.avatarURL()
+                    ? interaction.user.avatarURL()?.toString()
+                    : interaction.user.displayAvatarURL.toString()
             });
-        });
+
+        const selectMenu = new SelectMenuBuilder()
+            .setCustomId("trendingSelect")
+            .setPlaceholder(
+                trendingMovies[0].title
+                    ? trendingMovies[0].title
+                    : trendingMovies[0].name
+                    ? trendingMovies[0].name
+                    : "No valid title or name found"
+            );
+
+        for (let i = 0; i < trendingMovies.length; i += 1) {
+            const movie = trendingMovies[i];
+
+            selectMenu.addOptions(
+                new SelectMenuOptionBuilder()
+                    .setLabel(
+                        movie.title
+                            ? movie.title
+                            : movie.name
+                            ? movie.name
+                            : "No valid title or name found"
+                    )
+                    .setDescription(
+                        movie.first_air_date
+                            ? movie.first_air_date.substring(0, 4)
+                            : movie.release_date
+                            ? movie.release_date.substring(0, 4)
+                            : movie.known_for_department
+                            ? movie.known_for_department
+                            : "no valid info found"
+                    )
+                    .setValue(i.toString())
+            );
+        }
+
+        const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+            selectMenu
+        );
 
         interaction.reply({
             embeds: [trendingEmbed],
             ephemeral: true,
+            components: [row]
         });
     }
 }
