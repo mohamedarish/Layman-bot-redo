@@ -1,13 +1,13 @@
 import {
     ActionRowBuilder,
     ButtonBuilder,
-    EmbedBuilder,
+    EmbedBuilder
 } from "@discordjs/builders";
 import {
     ButtonStyle,
     CacheType,
     ChatInputCommandInteraction,
-    SlashCommandBuilder,
+    SlashCommandBuilder
 } from "discord.js";
 import { search } from "../api";
 import { BotCommand } from "../structures";
@@ -43,15 +43,10 @@ class Search extends BotCommand {
             page: res.page,
             results: res.results?.filter((el) => el.title),
             totalPages: res.total_pages,
-            totalResults: res.total_results,
+            totalResults: res.total_results
         };
 
         if (!movieResults) return;
-
-        // interaction.reply({
-        //     content: `Found ${movieResults.results?.length} results out of a total possible ${movieResults.total_results}`,
-        //     ephemeral: true,
-        // });
 
         if (
             !movieResults.results ||
@@ -60,52 +55,6 @@ class Search extends BotCommand {
             !movieResults.totalResults
         )
             return;
-
-        const embed = new EmbedBuilder()
-            .setTitle(`Search results for ${query}`)
-            .setColor(0x00ff0f);
-
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-                .setCustomId("back")
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji({ name: "⬅️" })
-        );
-
-        const emotes = ["1️⃣", "2️⃣", "3️⃣"];
-
-        for (
-            let i = 0;
-            i < (movieResults.totalResults < 3 ? movieResults.totalResults : 3);
-            i += 1
-        ) {
-            const movie = movieResults.results[i];
-
-            embed.addFields({
-                name: `${movie.title} (${movie.release_date.substring(0, 4)})`,
-                value: `${movie.vote_average * 10} %`,
-            });
-
-            row.addComponents(
-                new ButtonBuilder()
-                    .setCustomId(i.toString())
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji({ name: emotes[i] })
-            );
-        }
-
-        row.addComponents(
-            new ButtonBuilder()
-                .setCustomId("forward")
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji({ name: "⬅️" })
-        );
-
-        interaction.reply({
-            embeds: [embed],
-            components: [row],
-            ephemeral: true,
-        });
     }
 }
 

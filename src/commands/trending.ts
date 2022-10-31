@@ -7,6 +7,8 @@ import {
 import {
     CacheType,
     ChatInputCommandInteraction,
+    ComponentType,
+    SelectMenuInteraction,
     SlashCommandBuilder
 } from "discord.js";
 import { trending } from "../api";
@@ -68,7 +70,7 @@ class Trending extends BotCommand {
             trendingMovies.pop();
         }
 
-        const trendingEmbed = new EmbedBuilder()
+        let trendingEmbed = new EmbedBuilder()
             .setColor(0x0099ff)
             .setTitle(
                 trendingMovies[0].title
@@ -141,10 +143,93 @@ class Trending extends BotCommand {
             selectMenu
         );
 
-        interaction.reply({
+        const trendingReply = await interaction.reply({
             embeds: [trendingEmbed],
             ephemeral: true,
             components: [row]
+        });
+
+        const collector = trendingReply.createMessageComponentCollector({
+            componentType: ComponentType.SelectMenu,
+            time: 30000
+        });
+
+        collector.on("collect", (m) => {
+            if (m.customId !== "trendingSelect") return;
+
+            if (!m.values || !m.values[0]) return;
+
+            const sel = parseInt(m.values[0]);
+
+            const movie = trendingMovies[sel];
+
+            trendingEmbed = new EmbedBuilder()
+                .setColor(0x0099ff)
+                .setTitle(
+                    movie.title
+                        ? movie.title
+                        : movie.name
+                        ? movie.name
+                        : "No title or name found"
+                )
+                .setURL(`https://www.themoviedb.org/${type}/${movie.id}`)
+                .setDescription(
+                    movie.overview
+                        ? movie.overview
+                        : movie.known_for_department
+                        ? movie.known_for_department
+                        : "No valid description found"
+                )
+                .setImage(
+                    movie.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                        : movie.profile_path
+                        ? `https://image.tmdb.org/t/p/w500${movie.profile_path}`
+                        : "https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg"
+                )
+                .setThumbnail("https://i.imgur.com/44ueTES.png")
+                .setFooter({
+                    text: `Requested bu ${m.user.tag}`,
+                    iconURL: m.user.avatarURL()
+                        ? m.user.avatarURL()?.toString()
+                        : m.user.displayAvatarURL.toString()
+                });
+
+            selectMenu.setPlaceholder(
+                movie.title
+                    ? movie.title
+                    : movie.name
+                    ? movie.name
+                    : "No valid title or name found"
+            );
+
+            const newRow =
+                new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+                    selectMenu
+                );
+
+            interaction.editReply({
+                components: [newRow],
+                embeds: [trendingEmbed]
+            });
+            m.reply({
+                content: `Succesfully changed option to ${
+                    movie.title
+                        ? movie.title
+                        : movie.name
+                        ? movie.name
+                        : "No title found"
+                }`,
+                ephemeral: true
+            });
+        });
+
+        collector.on("end", () => {
+            interaction.editReply({
+                embeds: [trendingEmbed],
+                components: []
+            });
+            return;
         });
     }
 }
