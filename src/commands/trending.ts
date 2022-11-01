@@ -201,12 +201,15 @@ class Trending extends BotCommand {
                     iconURL: m.user.avatarURL()
                         ? m.user.avatarURL()?.toString()
                         : m.user.displayAvatarURL.toString()
-                })
-                .setAuthor({
+                });
+
+            if (vi.video) {
+                embed.setAuthor({
                     name: "Watch trailer",
                     url: vi.video,
                     iconURL: "https://i.imgur.com/OzUuy8B.png"
                 });
+            }
 
             m.reply({
                 embeds: [trendingMovie],

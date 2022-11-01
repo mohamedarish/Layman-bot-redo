@@ -74,9 +74,9 @@ class Search extends BotCommand {
             .setURL(vit.imdb)
             .setDescription(
                 movieResults[0].overview
-                    ? movieResults[0].overview
+                    ? `id: ${movieResults[0].id}\n${movieResults[0].overview}`
                     : movieResults[0].known_for_department
-                    ? movieResults[0].known_for_department
+                    ? `id: ${movieResults[0].id}\n${movieResults[0].known_for_department}`
                     : "No valid description found"
             )
             .setImage(
@@ -88,16 +88,19 @@ class Search extends BotCommand {
             )
             .setThumbnail("https://i.imgur.com/44ueTES.png")
             .setFooter({
-                text: `Requested bu ${interaction.user.tag}`,
+                text: `Requested by ${interaction.user.tag}`,
                 iconURL: interaction.user.avatarURL()
                     ? interaction.user.avatarURL()?.toString()
                     : interaction.user.displayAvatarURL.toString()
-            })
-            .setAuthor({
+            });
+
+        if (vit.video) {
+            searchEmbed.setAuthor({
                 name: "Watch trailer",
-                url: vit.video,
+                url: vit.video ? vit.video : undefined,
                 iconURL: "https://i.imgur.com/OzUuy8B.png"
             });
+        }
 
         const selectMenu = new SelectMenuBuilder()
             .setCustomId("searchSelect")
@@ -121,15 +124,7 @@ class Search extends BotCommand {
                             ? movie.name
                             : "No valid title or name found"
                     )
-                    .setDescription(
-                        movie.first_air_date
-                            ? movie.first_air_date.substring(0, 4)
-                            : movie.release_date
-                            ? movie.release_date.substring(0, 4)
-                            : movie.known_for_department
-                            ? movie.known_for_department
-                            : "no valid info found"
-                    )
+                    .setDescription(movie.id.toString())
                     .setValue(i.toString())
             );
         }
@@ -181,9 +176,9 @@ class Search extends BotCommand {
                 .setURL(vi.imdb)
                 .setDescription(
                     movie.overview
-                        ? movie.overview
+                        ? `id: ${movie.id}\n${movie.overview}`
                         : movie.known_for_department
-                        ? movie.known_for_department
+                        ? `id: ${movie.id}\n${movie.known_for_department}`
                         : "No valid description found"
                 )
                 .setImage(
@@ -195,16 +190,19 @@ class Search extends BotCommand {
                 )
                 .setThumbnail("https://i.imgur.com/44ueTES.png")
                 .setFooter({
-                    text: `Requested bu ${m.user.tag}`,
+                    text: `Requested by ${m.user.tag}`,
                     iconURL: m.user.avatarURL()
                         ? m.user.avatarURL()?.toString()
                         : m.user.displayAvatarURL.toString()
-                })
-                .setAuthor({
+                });
+
+            if (vi.video) {
+                searchEmbed.setAuthor({
                     name: "Watch trailer",
-                    url: vi.video,
+                    url: vi.video ? vi.video : undefined,
                     iconURL: "https://i.imgur.com/OzUuy8B.png"
                 });
+            }
 
             selectMenu.setPlaceholder(
                 movie.title
