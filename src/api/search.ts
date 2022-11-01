@@ -2,12 +2,13 @@ import { APIError } from "./types/error";
 import { Search } from "./types/search";
 
 async function getRequiredResponse(
+    type: string,
     q: string,
     page: number
 ): Promise<Search | void> {
     const response = (await (
         await fetch(
-            `https://api.themoviedb.org/3/search/movie?api_key=${process.env.TMDB}&language=en-US&query=${q}&page=${page}&include_adult=false`
+            `https://api.themoviedb.org/3/search/${type}?api_key=${process.env.TMDB}&language=en-US&query=${q}&page=${page}&include_adult=false`
         )
     ).json()) as Search | APIError;
 
@@ -30,8 +31,8 @@ async function getRequiredResponse(
     return validResponse;
 }
 
-const search = async (query: string): Promise<void | Search> => {
-    const response = await getRequiredResponse(query, 1);
+const search = async (type: string, query: string): Promise<void | Search> => {
+    const response = await getRequiredResponse(type, query, 1);
 
     if (
         !response ||
@@ -43,7 +44,7 @@ const search = async (query: string): Promise<void | Search> => {
         return;
 
     for (let i = 2; i <= response.total_pages; i += 1) {
-        const response2 = await getRequiredResponse(query, i);
+        const response2 = await getRequiredResponse(type, query, i);
 
         if (
             !response2 ||

@@ -25,6 +25,16 @@ class Search extends BotCommand {
                         .setDescription("the movie/tv series name")
                         .setRequired(true)
                 )
+                .addStringOption((option) =>
+                    option
+                        .setName("type")
+                        .setDescription("movie or series")
+                        .addChoices(
+                            { name: "movie", value: "movie" },
+                            { name: "series", value: "tv" }
+                        )
+                        .setRequired(true)
+                )
                 .toJSON()
         );
     }
@@ -33,10 +43,11 @@ class Search extends BotCommand {
         interaction: ChatInputCommandInteraction<CacheType>
     ): Promise<void> {
         const query = interaction.options.getString("query");
+        const type = interaction.options.getString("type");
 
         if (!query) return;
 
-        const res = await search(query);
+        const res = await search(type, query);
 
         if (!res) return;
 
