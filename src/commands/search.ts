@@ -10,7 +10,7 @@ import {
     ComponentType,
     SlashCommandBuilder
 } from "discord.js";
-import { search } from "../api";
+import { getMovieData, search } from "../api";
 import { BotCommand } from "../structures";
 
 class Search extends BotCommand {
@@ -51,20 +51,27 @@ class Search extends BotCommand {
             movieResults.pop();
         }
 
+        const vit = await getMovieData(
+            movieResults[0].media_type ? movieResults[0].media_type : "movie",
+            movieResults[0].id
+        );
+
+        if (!vit) return;
+
         let searchEmbed = new EmbedBuilder()
             .setColor(0x0099ff)
             .setTitle(
                 movieResults[0].title
-                    ? `${movieResults[0].title} (${movieResults[0].vote_average})`
+                    ? `${movieResults[0].title} ⭐️${movieResults[0].vote_average}`
                     : movieResults[0].name
                     ? movieResults[0].vote_average
-                        ? `${movieResults[0].name} (${movieResults[0].vote_average})`
+                        ? `${movieResults[0].name} ⭐️${movieResults[0].vote_average}`
                         : movieResults[0].popularity
-                        ? `${movieResults[0].name} (${movieResults[0].popularity})`
+                        ? `${movieResults[0].name} 🌟${movieResults[0].popularity}`
                         : movieResults[0].name
                     : "No title or name found"
             )
-            .setURL(`https://www.themoviedb.org/movie/${movieResults[0].id}`)
+            .setURL(vit.imdb)
             .setDescription(
                 movieResults[0].overview
                     ? movieResults[0].overview
@@ -85,6 +92,11 @@ class Search extends BotCommand {
                 iconURL: interaction.user.avatarURL()
                     ? interaction.user.avatarURL()?.toString()
                     : interaction.user.displayAvatarURL.toString()
+            })
+            .setAuthor({
+                name: "Watch trailer",
+                url: vit.video,
+                iconURL: "https://i.imgur.com/OzUuy8B.png"
             });
 
         const selectMenu = new SelectMenuBuilder()
@@ -137,7 +149,7 @@ class Search extends BotCommand {
             time: 30000
         });
 
-        collector.on("collect", (m) => {
+        collector.on("collect", async (m) => {
             if (m.customId !== "searchSelect") return;
 
             if (!m.values || !m.values[0]) return;
@@ -146,20 +158,27 @@ class Search extends BotCommand {
 
             const movie = movieResults[sel];
 
+            const vi = await getMovieData(
+                movie.media_type ? movie.media_type : "movie",
+                movie.id
+            );
+
+            if (!vi) return;
+
             searchEmbed = new EmbedBuilder()
                 .setColor(0x0099ff)
                 .setTitle(
                     movie.title
-                        ? `${movie.title} (${movie.vote_average})`
+                        ? `${movie.title} ⭐️${movie.vote_average}`
                         : movie.name
                         ? movie.vote_average
-                            ? `${movie.name} (${movie.vote_average})`
+                            ? `${movie.name} ⭐️${movie.vote_average}`
                             : movie.popularity
-                            ? `${movie.name} (${movie.popularity})`
+                            ? `${movie.name} 🌟${movie.popularity}`
                             : movie.name
                         : "No title or name found"
                 )
-                .setURL(`https://www.themoviedb.org/movie/${movie.id}`)
+                .setURL(vi.imdb)
                 .setDescription(
                     movie.overview
                         ? movie.overview
@@ -180,6 +199,11 @@ class Search extends BotCommand {
                     iconURL: m.user.avatarURL()
                         ? m.user.avatarURL()?.toString()
                         : m.user.displayAvatarURL.toString()
+                })
+                .setAuthor({
+                    name: "Watch trailer",
+                    url: vi.video,
+                    iconURL: "https://i.imgur.com/OzUuy8B.png"
                 });
 
             selectMenu.setPlaceholder(

@@ -10,7 +10,7 @@ import {
     ComponentType,
     SlashCommandBuilder
 } from "discord.js";
-import { trending } from "../api";
+import { getMovieData, trending } from "../api";
 import { BotCommand } from "../structures";
 
 class Trending extends BotCommand {
@@ -28,8 +28,7 @@ class Trending extends BotCommand {
                         .addChoices(
                             { name: "all", value: "all" },
                             { name: "movie", value: "movie" },
-                            { name: "tv", value: "tv" },
-                            { name: "person", value: "person" }
+                            { name: "tv", value: "tv" }
                         )
                         .setRequired(true)
                 )
@@ -77,7 +76,8 @@ class Trending extends BotCommand {
                 iconURL: interaction.user.avatarURL()
                     ? interaction.user.avatarURL()?.toString()
                     : interaction.user.displayAvatarURL.toString()
-            });
+            })
+            .setColor(0x44ff22);
 
         const actionRows: ActionRowBuilder<ButtonBuilder>[] = [];
 
@@ -125,11 +125,11 @@ class Trending extends BotCommand {
                     ? `${trendingMovies.indexOf(movie) + 1}. ${movie.name}`
                     : "No title found",
                 value: movie.first_air_date
-                    ? movie.first_air_date.substring(0, 4)
+                    ? `${movie.first_air_date}\t⭐️${movie.vote_average}`
                     : movie.release_date
-                    ? movie.release_date.substring(0, 4)
+                    ? `${movie.release_date}\t⭐️${movie.vote_average}`
                     : movie.known_for_department
-                    ? movie.known_for_department
+                    ? `${movie.known_for_department}\t🌟${movie.popularity}`
                     : "No valid data found"
             });
         });
@@ -144,32 +144,43 @@ class Trending extends BotCommand {
             );
         }
 
-        const TrendingReply = await interaction.reply({
+        const trendingReply = await interaction.reply({
             embeds: [embed],
             ephemeral: true,
             components: [actionRows[0], actionRows[1]]
         });
 
-        const collector = TrendingReply.createMessageComponentCollector({
+        const collector = trendingReply.createMessageComponentCollector({
             componentType: ComponentType.Button,
             time: 30000
         });
 
-        collector.on("collect", (m) => {
+        collector.on("collect", async (m) => {
             const selection = parseInt(m.customId);
 
             const movie = trendingMovies[selection];
+
+            const vi = await getMovieData(
+                movie.media_type ? movie.media_type : type,
+                movie.id
+            );
+
+            if (!vi) return;
 
             const trendingMovie = new EmbedBuilder()
                 .setColor(0xff5544)
                 .setTitle(
                     movie.title
-                        ? movie.title
+                        ? `${movie.title}\t⭐️(${movie.vote_average})`
                         : movie.name
-                        ? movie.name
+                        ? movie.vote_average
+                            ? `${movie.name}\t⭐️(${movie.vote_average})`
+                            : movie.popularity
+                            ? `${movie.name}\t🌟(${movie.popularity})`
+                            : movie.name
                         : "No title or name found"
                 )
-                .setURL(`https://www.themoviedb.org/${type}/${movie.id}`)
+                .setURL(vi.imdb)
                 .setDescription(
                     movie.overview
                         ? movie.overview
@@ -186,10 +197,15 @@ class Trending extends BotCommand {
                 )
                 .setThumbnail("https://i.imgur.com/44ueTES.png")
                 .setFooter({
-                    text: `Requested bu ${m.user.tag}`,
+                    text: `Requested by ${m.user.tag}`,
                     iconURL: m.user.avatarURL()
                         ? m.user.avatarURL()?.toString()
                         : m.user.displayAvatarURL.toString()
+                })
+                .setAuthor({
+                    name: "Watch trailer",
+                    url: vi.video,
+                    iconURL: "https://i.imgur.com/OzUuy8B.png"
                 });
 
             m.reply({
@@ -202,6 +218,7 @@ class Trending extends BotCommand {
                     embeds: [embed],
                     components: []
                 });
+                return;
             });
         });
     }
