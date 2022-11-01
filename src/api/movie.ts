@@ -28,12 +28,12 @@ async function getMovieData(type: string, id: number): Promise<IMDBnYT | void> {
 
     const imdbLink = `https://www.imdb.com/title/${validResponse.imdb_id}`;
 
-    let videoLink = "";
+    let videoLink = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
     for (let i = 0; i < vvalidResponse.results.length; i += 1) {
         const videoResult = vvalidResponse.results[i];
 
-        if (videoResult.site == "Youtube") {
+        if (videoResult.site === "Youtube" && videoResult.type === "Trailer") {
             videoLink = `https://www.${videoResult.site}.com/watch?v=${videoResult.key}`;
             break;
         }
