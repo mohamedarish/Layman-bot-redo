@@ -45,7 +45,7 @@ class Search extends BotCommand {
         const query = interaction.options.getString("query");
         const type = interaction.options.getString("type");
 
-        if (!query) return;
+        if (!query || !type) return;
 
         const res = await search(type, query);
 
