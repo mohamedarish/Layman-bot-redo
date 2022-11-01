@@ -11,4 +11,6 @@ RUN npm i --include=dev
 
 COPY . .
 
+RUN npm run build
+
 CMD npm start

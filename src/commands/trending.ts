@@ -1,7 +1,13 @@
-import { EmbedBuilder } from "@discordjs/builders";
 import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    EmbedBuilder
+} from "@discordjs/builders";
+import {
+    ButtonStyle,
     CacheType,
     ChatInputCommandInteraction,
+    ComponentType,
     SlashCommandBuilder
 } from "discord.js";
 import { trending } from "../api";
@@ -73,24 +79,130 @@ class Trending extends BotCommand {
                     : interaction.user.displayAvatarURL.toString()
             });
 
+        const actionRows: ActionRowBuilder<ButtonBuilder>[] = [];
+
+        actionRows.push(new ActionRowBuilder<ButtonBuilder>());
+        actionRows.push(new ActionRowBuilder<ButtonBuilder>());
+
+        const emotes = [
+            "1️⃣",
+            "2️⃣",
+            "3️⃣",
+            "4️⃣",
+            "5️⃣",
+            "6️⃣",
+            "7️⃣",
+            "8️⃣",
+            "9️⃣",
+            "🔟"
+        ];
+
         trendingMovies.forEach((movie) => {
+            if (trendingMovies.indexOf(movie) < 5) {
+                actionRows[0].addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(trendingMovies.indexOf(movie).toString())
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji({
+                            name: emotes[trendingMovies.indexOf(movie)]
+                        })
+                );
+            } else {
+                actionRows[1].addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(trendingMovies.indexOf(movie).toString())
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji({
+                            name: emotes[trendingMovies.indexOf(movie)]
+                        })
+                );
+            }
+
             embed.addFields({
                 name: movie.title
-                    ? movie.title
+                    ? `${trendingMovies.indexOf(movie) + 1}. ${movie.title}`
                     : movie.name
-                    ? movie.name
+                    ? `${trendingMovies.indexOf(movie) + 1}. ${movie.name}`
                     : "No title found",
-                value: movie.overview
-                    ? `${movie.overview.substring(0, 49)}...`
+                value: movie.first_air_date
+                    ? movie.first_air_date.substring(0, 4)
+                    : movie.release_date
+                    ? movie.release_date.substring(0, 4)
                     : movie.known_for_department
                     ? movie.known_for_department
-                    : "No valid overview found"
+                    : "No valid data found"
             });
         });
 
-        interaction.reply({
+        const buttons: ButtonBuilder[] = [];
+
+        for (let i = 0; i < 10; i += 1) {
+            buttons.push(
+                new ButtonBuilder()
+                    .setCustomId(i.toString())
+                    .setEmoji({ name: emotes[i] })
+            );
+        }
+
+        const TrendingReply = await interaction.reply({
             embeds: [embed],
-            ephemeral: true
+            ephemeral: true,
+            components: [actionRows[0], actionRows[1]]
+        });
+
+        const collector = TrendingReply.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            time: 30000
+        });
+
+        collector.on("collect", (m) => {
+            const selection = parseInt(m.customId);
+
+            const movie = trendingMovies[selection];
+
+            const trendingMovie = new EmbedBuilder()
+                .setColor(0xff5544)
+                .setTitle(
+                    movie.title
+                        ? movie.title
+                        : movie.name
+                        ? movie.name
+                        : "No title or name found"
+                )
+                .setURL(`https://www.themoviedb.org/${type}/${movie.id}`)
+                .setDescription(
+                    movie.overview
+                        ? movie.overview
+                        : movie.known_for_department
+                        ? movie.known_for_department
+                        : "No valid description found"
+                )
+                .setImage(
+                    movie.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                        : movie.profile_path
+                        ? `https://image.tmdb.org/t/p/w500${movie.profile_path}`
+                        : "https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg"
+                )
+                .setThumbnail("https://i.imgur.com/44ueTES.png")
+                .setFooter({
+                    text: `Requested bu ${m.user.tag}`,
+                    iconURL: m.user.avatarURL()
+                        ? m.user.avatarURL()?.toString()
+                        : m.user.displayAvatarURL.toString()
+                });
+
+            m.reply({
+                embeds: [trendingMovie],
+                ephemeral: true
+            });
+
+            collector.on("end", () => {
+                interaction.editReply({
+                    embeds: [embed],
+                    components: []
+                });
+            });
         });
     }
 }

@@ -45,17 +45,23 @@ class Search extends BotCommand {
 
         const movieResults = res.results;
 
+        // movieResults.sort((a, b) => (a.vote_average > b.vote_average ? 1 : -1)); // This is for sorting based on popularity not implemented because this gives bogus unwanted results first priority
+
         while (movieResults.length > 10) {
             movieResults.pop();
         }
 
-        let trendingEmbed = new EmbedBuilder()
+        let searchEmbed = new EmbedBuilder()
             .setColor(0x0099ff)
             .setTitle(
                 movieResults[0].title
-                    ? movieResults[0].title
+                    ? `${movieResults[0].title} (${movieResults[0].vote_average})`
                     : movieResults[0].name
-                    ? movieResults[0].name
+                    ? movieResults[0].vote_average
+                        ? `${movieResults[0].name} (${movieResults[0].vote_average})`
+                        : movieResults[0].popularity
+                        ? `${movieResults[0].name} (${movieResults[0].popularity})`
+                        : movieResults[0].name
                     : "No title or name found"
             )
             .setURL(`https://www.themoviedb.org/movie/${movieResults[0].id}`)
@@ -82,7 +88,7 @@ class Search extends BotCommand {
             });
 
         const selectMenu = new SelectMenuBuilder()
-            .setCustomId("trendingSelect")
+            .setCustomId("searchSelect")
             .setPlaceholder(
                 movieResults[0].title
                     ? movieResults[0].title
@@ -120,19 +126,19 @@ class Search extends BotCommand {
             selectMenu
         );
 
-        const trendingReply = await interaction.reply({
-            embeds: [trendingEmbed],
+        const searchReply = await interaction.reply({
+            embeds: [searchEmbed],
             ephemeral: true,
             components: [row]
         });
 
-        const collector = trendingReply.createMessageComponentCollector({
+        const collector = searchReply.createMessageComponentCollector({
             componentType: ComponentType.SelectMenu,
             time: 30000
         });
 
         collector.on("collect", (m) => {
-            if (m.customId !== "trendingSelect") return;
+            if (m.customId !== "searchSelect") return;
 
             if (!m.values || !m.values[0]) return;
 
@@ -140,13 +146,17 @@ class Search extends BotCommand {
 
             const movie = movieResults[sel];
 
-            trendingEmbed = new EmbedBuilder()
+            searchEmbed = new EmbedBuilder()
                 .setColor(0x0099ff)
                 .setTitle(
                     movie.title
-                        ? movie.title
+                        ? `${movie.title} (${movie.vote_average})`
                         : movie.name
-                        ? movie.name
+                        ? movie.vote_average
+                            ? `${movie.name} (${movie.vote_average})`
+                            : movie.popularity
+                            ? `${movie.name} (${movie.popularity})`
+                            : movie.name
                         : "No title or name found"
                 )
                 .setURL(`https://www.themoviedb.org/movie/${movie.id}`)
@@ -187,7 +197,7 @@ class Search extends BotCommand {
 
             interaction.editReply({
                 components: [newRow],
-                embeds: [trendingEmbed]
+                embeds: [searchEmbed]
             });
             m.reply({
                 content: `Succesfully changed option to ${
@@ -203,7 +213,7 @@ class Search extends BotCommand {
 
         collector.on("end", () => {
             interaction.editReply({
-                embeds: [trendingEmbed],
+                embeds: [searchEmbed],
                 components: []
             });
             return;
