@@ -8,6 +8,7 @@ import {
     CacheType,
     ChatInputCommandInteraction,
     ComponentType,
+    InteractionResponse,
     SlashCommandBuilder
 } from "discord.js";
 import { getMovieData, search } from "../api";
@@ -42,6 +43,8 @@ class Search extends BotCommand {
     public async execute(
         interaction: ChatInputCommandInteraction<CacheType>
     ): Promise<void> {
+        await interaction.deferReply({ ephemeral: true });
+
         const query = interaction.options.getString("query");
         const type = interaction.options.getString("type");
 
@@ -144,15 +147,14 @@ class Search extends BotCommand {
             selectMenu
         );
 
-        const searchReply = await interaction.reply({
+        const searchReply = await interaction.editReply({
             embeds: [searchEmbed],
-            ephemeral: true,
             components: [row]
         });
 
         const collector = searchReply.createMessageComponentCollector({
             componentType: ComponentType.SelectMenu,
-            time: 30000
+            time: 60000
         });
 
         collector.on("collect", async (m) => {
