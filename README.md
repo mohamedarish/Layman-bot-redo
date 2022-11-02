@@ -8,3 +8,4 @@ layman bot made for theHackTrical being remade in typescript with SlashCommands.
 This bot just has one more feature to be added and is open for anyone to complete.
 - Make the bot respond to the search reply message component actions.
 - The above message is not valid anymore and I will not be accepting any pull requestss from people who forked this repo before I made this new update.
+- Now it has 3 commands that are not ping.
