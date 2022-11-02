@@ -8,7 +8,6 @@ import {
     CacheType,
     ChatInputCommandInteraction,
     ComponentType,
-    InteractionResponse,
     SlashCommandBuilder
 } from "discord.js";
 import { getMovieData, search } from "../api";
