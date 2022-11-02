@@ -152,7 +152,7 @@ class Trending extends BotCommand {
 
         const collector = trendingReply.createMessageComponentCollector({
             componentType: ComponentType.Button,
-            time: 30000
+            time: 40000
         });
 
         collector.on("collect", async (m) => {

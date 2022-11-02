@@ -146,13 +146,13 @@ class Recommend extends BotCommand {
 
         const collector = recommendReply.createMessageComponentCollector({
             componentType: ComponentType.SelectMenu,
-            time: 30000
+            time: 40000
         });
 
         collector.on("collect", async (m) => {
             if (m.customId !== "recommendSelect") return;
 
-            if (!m.values || !m.values[0]) return;
+            if (!m.values) return;
 
             const sel = parseInt(m.values[0]);
 

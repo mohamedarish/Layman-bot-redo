@@ -53,10 +53,26 @@ class Search extends BotCommand {
 
         if (!res) return;
 
-        if (!res.results || !res.page || !res.total_pages || !res.total_results)
+        if (
+            !res.results ||
+            !res.page ||
+            !res.total_pages ||
+            !res.total_results
+        ) {
+            interaction.editReply({
+                content: `No results found for ${query}`
+            });
             return;
+        }
 
         const movieResults = res.results;
+
+        if (movieResults.length < 1) {
+            interaction.editReply({
+                content: `No results found for ${query}`
+            });
+            return;
+        }
 
         // movieResults.sort((a, b) => (a.vote_average > b.vote_average ? 1 : -1)); // This is for sorting based on popularity not implemented because this gives bogus unwanted results first priority
 
@@ -65,7 +81,7 @@ class Search extends BotCommand {
         }
 
         const vit = await getMovieData(
-            movieResults[0].media_type ? movieResults[0].media_type : "movie",
+            movieResults[0].media_type ? movieResults[0].media_type : type,
             movieResults[0].id
         );
 
@@ -153,20 +169,20 @@ class Search extends BotCommand {
 
         const collector = searchReply.createMessageComponentCollector({
             componentType: ComponentType.SelectMenu,
-            time: 60000
+            time: 40000
         });
 
         collector.on("collect", async (m) => {
             if (m.customId !== "searchSelect") return;
 
-            if (!m.values || !m.values[0]) return;
+            if (!m.values) return;
 
             const sel = parseInt(m.values[0]);
 
             const movie = movieResults[sel];
 
             const vi = await getMovieData(
-                movie.media_type ? movie.media_type : "movie",
+                movie.media_type ? movie.media_type : type,
                 movie.id
             );
 
@@ -233,6 +249,7 @@ class Search extends BotCommand {
                 components: [newRow],
                 embeds: [searchEmbed]
             });
+
             m.reply({
                 content: `Succesfully changed option to ${
                     movie.title
