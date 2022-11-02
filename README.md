@@ -1,5 +1,7 @@
 # Layman-bot-redo
-layman bot made for theHackTrical being remade in typescript with SlashCommands
+layman bot made for theHackTrical being remade in typescript with SlashCommands.
+
+[invite me to your server](https://discord.com/api/oauth2/authorize?client_id=1035213125403811910&permissions=397284603968&scope=bot%20applications.commands)
 
 
 # Status
