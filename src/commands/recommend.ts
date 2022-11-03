@@ -219,12 +219,9 @@ class Recommend extends BotCommand {
                 components: [newRow],
                 embeds: [recommendEmbed]
             });
-            m.reply({
-                content: `Succesfully changed option to ${
-                    movie.title ? movie.title : "No title found"
-                }`,
-                ephemeral: true
-            });
+            await m.deferReply();
+
+            m.deleteReply();
         });
 
         collector.on("end", () => {

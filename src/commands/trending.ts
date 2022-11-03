@@ -1,10 +1,10 @@
 import {
     ActionRowBuilder,
-    ButtonBuilder,
-    EmbedBuilder
+    EmbedBuilder,
+    SelectMenuBuilder,
+    SelectMenuOptionBuilder
 } from "@discordjs/builders";
 import {
-    ButtonStyle,
     CacheType,
     ChatInputCommandInteraction,
     ComponentType,
@@ -79,44 +79,25 @@ class Trending extends BotCommand {
             })
             .setColor(0x44ff22);
 
-        const actionRows: ActionRowBuilder<ButtonBuilder>[] = [];
-
-        actionRows.push(new ActionRowBuilder<ButtonBuilder>());
-        actionRows.push(new ActionRowBuilder<ButtonBuilder>());
-
-        const emotes = [
-            "1️⃣",
-            "2️⃣",
-            "3️⃣",
-            "4️⃣",
-            "5️⃣",
-            "6️⃣",
-            "7️⃣",
-            "8️⃣",
-            "9️⃣",
-            "🔟"
-        ];
+        const trendingSelect = new SelectMenuBuilder()
+            .setCustomId("trendingSelect")
+            .setPlaceholder(
+                "Select an option from this menu to view the movie details"
+            );
 
         trendingMovies.forEach((movie) => {
-            if (trendingMovies.indexOf(movie) < 5) {
-                actionRows[0].addComponents(
-                    new ButtonBuilder()
-                        .setCustomId(trendingMovies.indexOf(movie).toString())
-                        .setStyle(ButtonStyle.Primary)
-                        .setEmoji({
-                            name: emotes[trendingMovies.indexOf(movie)]
-                        })
-                );
-            } else {
-                actionRows[1].addComponents(
-                    new ButtonBuilder()
-                        .setCustomId(trendingMovies.indexOf(movie).toString())
-                        .setStyle(ButtonStyle.Primary)
-                        .setEmoji({
-                            name: emotes[trendingMovies.indexOf(movie)]
-                        })
-                );
-            }
+            trendingSelect.addOptions(
+                new SelectMenuOptionBuilder()
+                    .setLabel(
+                        movie.title
+                            ? movie.title
+                            : movie.name
+                            ? movie.name
+                            : "No title found"
+                    )
+                    .setDescription(`⭐️ ${movie.vote_average}`)
+                    .setValue(trendingMovies.indexOf(movie).toString())
+            );
 
             embed.addFields({
                 name: movie.title
@@ -134,29 +115,26 @@ class Trending extends BotCommand {
             });
         });
 
-        const buttons: ButtonBuilder[] = [];
-
-        for (let i = 0; i < 10; i += 1) {
-            buttons.push(
-                new ButtonBuilder()
-                    .setCustomId(i.toString())
-                    .setEmoji({ name: emotes[i] })
+        const actionRow =
+            new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+                trendingSelect
             );
-        }
 
         const trendingReply = await interaction.reply({
             embeds: [embed],
             ephemeral: true,
-            components: [actionRows[0], actionRows[1]]
+            components: [actionRow]
         });
 
         const collector = trendingReply.createMessageComponentCollector({
-            componentType: ComponentType.Button,
+            componentType: ComponentType.SelectMenu,
             time: 40000
         });
 
         collector.on("collect", async (m) => {
-            const selection = parseInt(m.customId);
+            if (!m.values) return;
+
+            const selection = parseInt(m.values[0]);
 
             const movie = trendingMovies[selection];
 
@@ -204,7 +182,7 @@ class Trending extends BotCommand {
                 });
 
             if (vi.video) {
-                embed.setAuthor({
+                trendingMovie.setAuthor({
                     name: "Watch trailer",
                     url: vi.video,
                     iconURL: "https://i.imgur.com/OzUuy8B.png"
