@@ -1,5 +1,6 @@
 import { APIError } from "./types/error";
 import { Search } from "./types/search";
+import fetch from "cross-fetch";
 
 const search = async (type: string, query: string): Promise<void | Search> => {
     const response = (await (

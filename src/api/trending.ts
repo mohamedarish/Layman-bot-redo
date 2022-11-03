@@ -1,5 +1,6 @@
 import { APIError } from "./types/error";
 import { Trending } from "./types/trending";
+import fetch from "cross-fetch";
 
 const trending = async (t: string, frame: string): Promise<void | Trending> => {
     const response = (await (

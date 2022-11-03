@@ -2,6 +2,7 @@ import { MovieData } from "./types/movie";
 import { APIError } from "./types/error";
 import { VideoData } from "./types/video";
 import { IMDBnYT } from "./types/ret";
+import fetch from "cross-fetch";
 
 async function getMovieData(type: string, id: number): Promise<IMDBnYT | void> {
     const res = (await (
@@ -46,5 +47,6 @@ async function getMovieData(type: string, id: number): Promise<IMDBnYT | void> {
 
     return ret;
 }
+console.log(getMovieData("movie", 550));
 
 export default getMovieData;
