@@ -1,5 +1,6 @@
 import { APIError } from "./types/error";
 import { Similar } from "./types/similar";
+import fetch from "cross-fetch";
 
 async function getSimilar(type: string, id: number): Promise<Similar | void> {
     const res = (await (
