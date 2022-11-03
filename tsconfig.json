@@ -9,7 +9,8 @@
     "removeComments": true,
     "esModuleInterop": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2021", "DOM"]
   },
   "include": [
     "src/**/*"
