@@ -250,16 +250,9 @@ class Search extends BotCommand {
                 embeds: [searchEmbed]
             });
 
-            m.reply({
-                content: `Succesfully changed option to ${
-                    movie.title
-                        ? movie.title
-                        : movie.name
-                        ? movie.name
-                        : "No title found"
-                }`,
-                ephemeral: true
-            });
+            await m.deferReply();
+
+            m.deleteReply();
         });
 
         collector.on("end", () => {
