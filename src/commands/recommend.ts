@@ -140,7 +140,6 @@ class Recommend extends BotCommand {
 
         const recommendReply = await interaction.reply({
             embeds: [recommendEmbed],
-            ephemeral: true,
             components: [row]
         });
 

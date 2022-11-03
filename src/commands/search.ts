@@ -42,7 +42,7 @@ class Search extends BotCommand {
     public async execute(
         interaction: ChatInputCommandInteraction<CacheType>
     ): Promise<void> {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({});
 
         const query = interaction.options.getString("query");
         const type = interaction.options.getString("type");

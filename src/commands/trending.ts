@@ -122,7 +122,6 @@ class Trending extends BotCommand {
 
         const trendingReply = await interaction.reply({
             embeds: [embed],
-            ephemeral: true,
             components: [actionRow]
         });
 
@@ -190,8 +189,7 @@ class Trending extends BotCommand {
             }
 
             m.reply({
-                embeds: [trendingMovie],
-                ephemeral: true
+                embeds: [trendingMovie]
             });
 
             collector.on("end", () => {
