@@ -2,13 +2,13 @@ import {
     ActionRowBuilder,
     EmbedBuilder,
     SelectMenuBuilder,
-    SelectMenuOptionBuilder
+    SelectMenuOptionBuilder,
 } from "@discordjs/builders";
 import {
     CacheType,
     ChatInputCommandInteraction,
     ComponentType,
-    SlashCommandBuilder
+    SlashCommandBuilder,
 } from "discord.js";
 import { getMovieData, trending } from "../api";
 import { BotCommand } from "../structures";
@@ -75,7 +75,7 @@ class Trending extends BotCommand {
                 text: `Requested by ${interaction.user.tag}`,
                 iconURL: interaction.user.avatarURL()
                     ? interaction.user.avatarURL()?.toString()
-                    : interaction.user.displayAvatarURL.toString()
+                    : interaction.user.displayAvatarURL.toString(),
             })
             .setColor(0x44ff22);
 
@@ -111,7 +111,7 @@ class Trending extends BotCommand {
                     ? `${movie.release_date}\t⭐️${movie.vote_average}`
                     : movie.known_for_department
                     ? `${movie.known_for_department}\t🌟${movie.popularity}`
-                    : "No valid data found"
+                    : "No valid data found",
             });
         });
 
@@ -122,12 +122,12 @@ class Trending extends BotCommand {
 
         const trendingReply = await interaction.reply({
             embeds: [embed],
-            components: [actionRow]
+            components: [actionRow],
         });
 
         const collector = trendingReply.createMessageComponentCollector({
             componentType: ComponentType.SelectMenu,
-            time: 40000
+            time: 40000,
         });
 
         collector.on("collect", async (m) => {
@@ -177,25 +177,25 @@ class Trending extends BotCommand {
                     text: `Requested by ${m.user.tag}`,
                     iconURL: m.user.avatarURL()
                         ? m.user.avatarURL()?.toString()
-                        : m.user.displayAvatarURL.toString()
+                        : m.user.displayAvatarURL.toString(),
                 });
 
             if (vi.video) {
                 trendingMovie.setAuthor({
                     name: "Watch trailer",
                     url: vi.video,
-                    iconURL: "https://i.imgur.com/OzUuy8B.png"
+                    iconURL: "https://i.imgur.com/OzUuy8B.png",
                 });
             }
 
             m.reply({
-                embeds: [trendingMovie]
+                embeds: [trendingMovie],
             });
 
             collector.on("end", () => {
                 interaction.editReply({
                     embeds: [embed],
-                    components: []
+                    components: [],
                 });
                 return;
             });

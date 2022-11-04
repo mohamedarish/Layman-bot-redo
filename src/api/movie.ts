@@ -42,7 +42,7 @@ async function getMovieData(type: string, id: number): Promise<IMDBnYT | void> {
 
     const ret: IMDBnYT = {
         video: videoLink,
-        imdb: imdbLink
+        imdb: imdbLink,
     };
 
     return ret;
