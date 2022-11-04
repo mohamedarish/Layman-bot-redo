@@ -6,7 +6,7 @@ import {
     EmbedBuilder,
     SelectMenuBuilder,
     SelectMenuOptionBuilder,
-    SlashCommandBuilder
+    SlashCommandBuilder,
 } from "discord.js";
 import { getMovieData, getSimilar } from "../api";
 import { BotCommand } from "../structures";
@@ -90,14 +90,14 @@ class Recommend extends BotCommand {
                 text: `Requested by ${interaction.user.tag}`,
                 iconURL: interaction.user.avatarURL()
                     ? interaction.user.avatarURL()?.toString()
-                    : interaction.user.displayAvatarURL.toString()
+                    : interaction.user.displayAvatarURL.toString(),
             });
 
         if (vit.video) {
             recommendEmbed.setAuthor({
                 name: "Watch trailer",
                 url: vit.video,
-                iconURL: "https://i.imgur.com/OzUuy8B.png"
+                iconURL: "https://i.imgur.com/OzUuy8B.png",
             });
         }
 
@@ -140,12 +140,12 @@ class Recommend extends BotCommand {
 
         const recommendReply = await interaction.reply({
             embeds: [recommendEmbed],
-            components: [row]
+            components: [row],
         });
 
         const collector = recommendReply.createMessageComponentCollector({
             componentType: ComponentType.SelectMenu,
-            time: 40000
+            time: 40000,
         });
 
         collector.on("collect", async (m) => {
@@ -190,14 +190,14 @@ class Recommend extends BotCommand {
                     text: `Requested by ${m.user.tag}`,
                     iconURL: m.user.avatarURL()
                         ? m.user.avatarURL()?.toString()
-                        : m.user.displayAvatarURL.toString()
+                        : m.user.displayAvatarURL.toString(),
                 });
 
             if (vi.video) {
                 recommendEmbed.setAuthor({
                     name: "Watch trailer",
                     url: vi.video,
-                    iconURL: "https://i.imgur.com/OzUuy8B.png"
+                    iconURL: "https://i.imgur.com/OzUuy8B.png",
                 });
             }
 
@@ -216,7 +216,7 @@ class Recommend extends BotCommand {
 
             interaction.editReply({
                 components: [newRow],
-                embeds: [recommendEmbed]
+                embeds: [recommendEmbed],
             });
             await m.deferReply();
 
@@ -226,7 +226,7 @@ class Recommend extends BotCommand {
         collector.on("end", () => {
             interaction.editReply({
                 embeds: [recommendEmbed],
-                components: []
+                components: [],
             });
             return;
         });

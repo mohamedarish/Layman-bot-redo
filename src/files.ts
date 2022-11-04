@@ -14,7 +14,7 @@ const getAllFiles = (pathLike: fs.PathLike): string[] => {
             ...results,
             ...(stat && stat.isDirectory()
                 ? getAllFiles(path.join(pathLike.toString(), file))
-                : [path.join(pathLike.toString(), file)])
+                : [path.join(pathLike.toString(), file)]),
         ];
     }
 

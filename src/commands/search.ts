@@ -2,13 +2,13 @@ import {
     ActionRowBuilder,
     EmbedBuilder,
     SelectMenuBuilder,
-    SelectMenuOptionBuilder
+    SelectMenuOptionBuilder,
 } from "@discordjs/builders";
 import {
     CacheType,
     ChatInputCommandInteraction,
     ComponentType,
-    SlashCommandBuilder
+    SlashCommandBuilder,
 } from "discord.js";
 import { getMovieData, search } from "../api";
 import { BotCommand } from "../structures";
@@ -60,7 +60,7 @@ class Search extends BotCommand {
             !res.total_results
         ) {
             interaction.editReply({
-                content: `No results found for ${query}`
+                content: `No results found for ${query}`,
             });
             return;
         }
@@ -69,7 +69,7 @@ class Search extends BotCommand {
 
         if (movieResults.length < 1) {
             interaction.editReply({
-                content: `No results found for ${query}`
+                content: `No results found for ${query}`,
             });
             return;
         }
@@ -120,14 +120,14 @@ class Search extends BotCommand {
                 text: `Requested by ${interaction.user.tag}`,
                 iconURL: interaction.user.avatarURL()
                     ? interaction.user.avatarURL()?.toString()
-                    : interaction.user.displayAvatarURL.toString()
+                    : interaction.user.displayAvatarURL.toString(),
             });
 
         if (vit.video) {
             searchEmbed.setAuthor({
                 name: "Watch trailer",
                 url: vit.video ? vit.video : undefined,
-                iconURL: "https://i.imgur.com/OzUuy8B.png"
+                iconURL: "https://i.imgur.com/OzUuy8B.png",
             });
         }
 
@@ -164,12 +164,12 @@ class Search extends BotCommand {
 
         const searchReply = await interaction.editReply({
             embeds: [searchEmbed],
-            components: [row]
+            components: [row],
         });
 
         const collector = searchReply.createMessageComponentCollector({
             componentType: ComponentType.SelectMenu,
-            time: 40000
+            time: 40000,
         });
 
         collector.on("collect", async (m) => {
@@ -221,14 +221,14 @@ class Search extends BotCommand {
                     text: `Requested by ${m.user.tag}`,
                     iconURL: m.user.avatarURL()
                         ? m.user.avatarURL()?.toString()
-                        : m.user.displayAvatarURL.toString()
+                        : m.user.displayAvatarURL.toString(),
                 });
 
             if (vi.video) {
                 searchEmbed.setAuthor({
                     name: "Watch trailer",
                     url: vi.video ? vi.video : undefined,
-                    iconURL: "https://i.imgur.com/OzUuy8B.png"
+                    iconURL: "https://i.imgur.com/OzUuy8B.png",
                 });
             }
 
@@ -247,7 +247,7 @@ class Search extends BotCommand {
 
             interaction.editReply({
                 components: [newRow],
-                embeds: [searchEmbed]
+                embeds: [searchEmbed],
             });
 
             await m.deferReply();
@@ -258,7 +258,7 @@ class Search extends BotCommand {
         collector.on("end", () => {
             interaction.editReply({
                 embeds: [searchEmbed],
-                components: []
+                components: [],
             });
             return;
         });
